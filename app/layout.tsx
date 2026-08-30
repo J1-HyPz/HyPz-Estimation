@@ -14,14 +14,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gametrack-hypz.kingbossj1609.chatgpt.site'),
-  title: 'GameTrack — Every game, one view',
+  title: 'GameTrack — Football match centre',
   description:
-    'A unified live score, schedule, and league standings dashboard for the sports you follow.',
+    'Football fixtures, live scores, league standings and detailed match information across Europe’s leading competitions.',
   openGraph: {
     type: 'website',
-    title: 'GameTrack — Every game, one view',
+    title: 'GameTrack — Football match centre',
     description:
-      'Live scores, schedules and league standings across the sports you follow.',
+      'Football fixtures, match details and league standings across Europe’s leading competitions.',
     images: [
       {
         url: '/og.png',
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GameTrack — Every game, one view',
+    title: 'GameTrack — Football match centre',
     description:
-      'Live scores, schedules and league standings across the sports you follow.',
+      'Football fixtures, match details and league standings across Europe’s leading competitions.',
     images: ['/og.png'],
   },
 };
