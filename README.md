@@ -7,13 +7,12 @@ GameTrack is a responsive sports schedule and live-score web application for tra
 * ⚾ MLB
 * ⚽ Football / Soccer
 
-The application focuses on a rolling **15-day schedule window**:
+The application focuses on a forward-looking **8-day schedule window**:
 
-* Previous 7 days
 * Today
-* Next 7 days
+* The next 7 days
 
-GameTrack should provide one unified interface for viewing past results, live games, upcoming fixtures, game details, statistics, favourite teams, and alerts.
+GameTrack should provide one unified interface for viewing today's results, live games, upcoming fixtures, game details, statistics, league tables, saved games, and alerts.
 
 ---
 
@@ -24,11 +23,12 @@ The main goal is to create a modern sports dashboard that combines multiple spor
 The application should:
 
 * Display games from multiple sports in one schedule
-* Show completed, live, and upcoming games
+* Show completed and live games from today, plus upcoming games through the next 7 days
 * Update live scores automatically
 * Allow users to filter games by sport and status
 * Provide detailed information for individual games
-* Allow users to favourite teams and games
+* Allow users to save individual games
+* Provide league tables and standings appropriate to each supported sport
 * Display all times in the user's local timezone
 * Work well on desktop, tablet, and mobile
 * Use a shared internal data format across all supported sports
@@ -94,7 +94,8 @@ This includes:
 * Filters
 * Game cards
 * Game details
-* Favourite teams
+* League tables
+* Favourite games
 * Responsive layouts
 
 ## Phase 2: Sports Data Layer
@@ -107,7 +108,6 @@ Add:
 
 * Authentication
 * User preferences
-* Favourite teams
 * Favourite games
 * Notification settings
 
@@ -134,18 +134,10 @@ Include:
 * Dashboard
 * Schedule
 * Scores
-* Favorites
+* Standings
+* Saved Games
 * Alerts
 * Settings
-
-Also include a **My Teams** section containing the user's favourite teams.
-
-Example:
-
-* New York Knicks
-* Baltimore Ravens
-* New York Yankees
-* Arsenal
 
 The sidebar should collapse appropriately on smaller displays.
 
@@ -181,6 +173,7 @@ It should contain:
 5. Selected game details
 6. Filter controls
 7. Quick overview widgets
+8. Compact league table
 
 ---
 
@@ -203,10 +196,8 @@ Users must be able to enable multiple sports simultaneously.
 The application should always limit its main schedule to:
 
 ```text
-Today - 7 days
-      ↓
-    Today
-      ↓
+Today
+  ↓
 Today + 7 days
 ```
 
@@ -215,21 +206,21 @@ Display this as a horizontal date selector.
 Example:
 
 ```text
-PAST 7 DAYS           TODAY           NEXT 7 DAYS
+TODAY                              NEXT 7 DAYS
 
-Thu   Fri   Sat   Sun   Mon   Tue   Wed
- 8     9    10    11    12    13    14
+Sun   Mon   Tue   Wed   Thu   Fri   Sat   Sun
+ 9     10    11    12    13    14    15    16
 ```
 
-The selected day should be visually highlighted.
+Today should be selected and visually highlighted by default.
 
-Users can select any day within the 15-day window.
+Users can select today or any of the following 7 days. Dates before today are outside the main schedule window.
 
 ---
 
 # Schedule
 
-Games should be grouped by date.
+Games should be grouped by date within the 8-day schedule window.
 
 Example:
 
@@ -580,6 +571,80 @@ Values should reflect the currently selected date/filter range.
 
 ---
 
+# League Tables
+
+GameTrack should include league tables and standings for the selected sport and league.
+
+Provide:
+
+* A dedicated standings page
+* A compact league table on the dashboard
+* Sport and league selectors
+* The current season by default
+* A clear last-updated time when real data is introduced
+
+The table should always show:
+
+* Position
+* Team
+* Games played
+
+Additional columns should adapt to the sport rather than forcing every league into one universal format.
+
+## Football League Tables
+
+Possible columns:
+
+* Played
+* Won
+* Drawn
+* Lost
+* Goals for
+* Goals against
+* Goal difference
+* Points
+* Recent form
+
+## NBA Standings
+
+Possible columns:
+
+* Wins
+* Losses
+* Win percentage
+* Games behind
+* Conference or division
+* Streak
+
+## NFL Standings
+
+Possible columns:
+
+* Wins
+* Losses
+* Ties
+* Win percentage
+* Points for
+* Points against
+* Division or conference
+* Streak
+
+## MLB Standings
+
+Possible columns:
+
+* Wins
+* Losses
+* Win percentage
+* Games behind
+* Run differential
+* Division or league
+* Streak
+
+Standings should support conference, division, or competition groupings where applicable. On smaller screens, keep team and position visible while allowing secondary columns to scroll horizontally or collapse into a detail view.
+
+---
+
 # Filtering
 
 Provide a dedicated filtering system.
@@ -603,7 +668,6 @@ Users should be able to filter by:
 
 * Timezone
 * Competition
-* Favourite teams
 * Sort order
 * Grouping
 
@@ -621,7 +685,6 @@ Architecture should allow additional options later:
 
 * Sport
 * League
-* Favourite teams
 * Live first
 * Upcoming first
 
@@ -662,54 +725,11 @@ Future search targets:
 
 ---
 
-# Favourite Teams
-
-Users should be able to favourite teams.
-
-Favourite teams should appear in the sidebar.
-
-Example data structure:
-
-```typescript
-interface FavoriteTeam {
-  id: string;
-  userId: string;
-  teamId: string;
-  createdAt: Date;
-}
-```
-
-Favourite teams can later affect:
-
-* Dashboard ordering
-* Notifications
-* Suggested games
-* Search results
-
----
-
 # Favourite Games
 
-Users should also be able to save individual games.
+Users should be able to save individual games.
 
 A star icon should appear in the game detail interface.
-
----
-
-# Favourite Team Next Game
-
-The dashboard should include a small widget showing the next fixture involving one of the user's favourite teams.
-
-Example:
-
-```text
-New York Knicks
-
-vs Pacers
-
-Tuesday, May 13
-7:00 PM
-```
 
 ---
 
@@ -724,7 +744,6 @@ Future notifications may include:
 * Score changed
 * Half-time
 * End of game
-* Favourite team playing
 * Game postponed
 * Game cancelled
 
@@ -778,7 +797,8 @@ Suggested mobile tabs:
 
 * Schedule
 * Scores
-* Favorites
+* Standings
+* Saved Games
 * Alerts
 * Profile
 
@@ -905,6 +925,37 @@ export interface Game {
     country?: string;
   };
 }
+
+export interface StandingRow {
+  position: number;
+  team: TeamReference;
+  played: number;
+  won: number;
+  lost: number;
+  drawn?: number;
+  points?: number;
+  percentage?: number;
+  gamesBack?: number;
+  scoreFor?: number;
+  scoreAgainst?: number;
+  scoreDifferential?: number;
+  streak?: string;
+  form?: Array<"W" | "D" | "L">;
+}
+
+export interface LeagueTable {
+  id: string;
+  sport: Sport;
+  league: {
+    id: string;
+    name: string;
+  };
+  season: string;
+  name: string;
+  group?: string;
+  updatedAt?: string;
+  rows: StandingRow[];
+}
 ```
 
 ---
@@ -953,6 +1004,11 @@ interface SportsProvider {
   getGame(
     gameId: string
   ): Promise<Game | null>;
+
+  getStandings(
+    leagueId: string,
+    season?: string
+  ): Promise<LeagueTable[]>;
 }
 ```
 
@@ -975,6 +1031,7 @@ Include:
 * Live games
 * Upcoming games
 * Postponed games
+* League tables for each supported sport
 
 Mock data should include enough examples to test all major layouts.
 
@@ -1053,7 +1110,6 @@ User
 Team
 League
 Game
-FavoriteTeam
 FavoriteGame
 UserPreference
 NotificationPreference
@@ -1073,6 +1129,7 @@ src/
 │   ├── page.tsx
 │   ├── schedule/
 │   ├── scores/
+│   ├── standings/
 │   ├── favorites/
 │   ├── alerts/
 │   ├── settings/
@@ -1084,6 +1141,7 @@ src/
 │   ├── navigation/
 │   ├── schedule/
 │   ├── games/
+│   ├── standings/
 │   ├── filters/
 │   ├── teams/
 │   └── ui/
@@ -1137,10 +1195,16 @@ Expanded schedule.
 Live and completed games.
 
 ```text
+/standings
+```
+
+League tables and standings.
+
+```text
 /favorites
 ```
 
-Favourite teams and games.
+Saved individual games.
 
 ```text
 /alerts
@@ -1174,7 +1238,6 @@ The first working release should contain:
 * [ ] MLB support
 * [ ] Football support
 * [ ] Mock sports data
-* [ ] Past 7 days
 * [ ] Today
 * [ ] Next 7 days
 * [ ] Date selector
@@ -1190,8 +1253,8 @@ The first working release should contain:
 * [ ] Sorting
 * [ ] Game details
 * [ ] Basic statistics
+* [ ] League tables and standings
 * [ ] Search
-* [ ] Favourite teams
 * [ ] Favourite games
 * [ ] Local timezone conversion
 * [ ] Responsive desktop layout
@@ -1204,13 +1267,12 @@ The first working release should contain:
 After the MVP:
 
 * [ ] Authentication
-* [ ] Persistent user favourites
+* [ ] Persistent favourite games
 * [ ] Real sports API integration
 * [ ] Live score polling
 * [ ] Team pages
 * [ ] Player pages
 * [ ] League pages
-* [ ] Standings
 * [ ] Play-by-play
 * [ ] Lineups
 * [ ] Notifications
@@ -1417,6 +1479,8 @@ League
 Game
 GameStatus
 GameEvent
+StandingRow
+LeagueTable
 ```
 
 ## Task 3
@@ -1430,6 +1494,8 @@ Include games from:
 * MLB
 * Football
 
+Also include league table data for each supported sport.
+
 ## Task 4
 
 Create the Date Selector.
@@ -1437,9 +1503,9 @@ Create the Date Selector.
 Support:
 
 ```text
-Today - 7
+Today
 through
-Today + 7
+Today + 7 days
 ```
 
 ## Task 5
@@ -1462,15 +1528,19 @@ Implement sports and status filtering.
 
 ## Task 8
 
-Create the Game Detail panel.
+Create the League Table view and dashboard widget.
 
 ## Task 9
 
-Add responsive mobile layouts.
+Create the Game Detail panel.
 
 ## Task 10
 
-Add favourites.
+Add responsive mobile layouts.
+
+## Task 11
+
+Add favourite games.
 
 Do not begin external sports API integration until the core interface works properly using mock data.
 
