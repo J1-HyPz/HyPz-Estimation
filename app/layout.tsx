@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://localhost:3000'),
+  metadataBase: new URL('https://gametrack-hypz.kingbossj1609.chatgpt.site'),
   title: 'GameTrack — Every game, one view',
   description:
     'A unified live score, schedule, and league standings dashboard for the sports you follow.',
